@@ -4,6 +4,16 @@ let headers = {};
 let interviewData = {}; // Store interview scheduling data
 let firebaseInitialized = false;
 
+// Helper function to encode email for Firebase (replace . with ,)
+function encodeEmail(email) {
+    return email.replace(/\./g, ',');
+}
+
+// Helper function to decode email from Firebase (replace , with .)
+function decodeEmail(encodedEmail) {
+    return encodedEmail.replace(/,/g, '.');
+}
+
 // Question mappings for different committees
 const questionMap = {
     'Column7': 'How do you usually manage your time between college, activities, and personal life?',
@@ -86,11 +96,14 @@ function loadInterviewData() {
     interviewRef.on('value', (snapshot) => {
         const data = snapshot.val();
         if (data) {
-            interviewData = data;
-            // Ensure all entries have contacted field
-            Object.keys(interviewData).forEach(key => {
-                if (interviewData[key].contacted === undefined) {
-                    interviewData[key].contacted = false;
+            // Decode the Firebase keys back to original emails
+            interviewData = {};
+            Object.keys(data).forEach(encodedKey => {
+                const decodedKey = decodeEmail(encodedKey);
+                interviewData[decodedKey] = data[encodedKey];
+                // Ensure all entries have contacted field
+                if (interviewData[decodedKey].contacted === undefined) {
+                    interviewData[decodedKey].contacted = false;
                 }
             });
             // Re-render the display to show updated data
@@ -110,9 +123,16 @@ function saveInterviewData() {
         return;
     }
 
+    // Encode email keys for Firebase (replace . with ,)
+    const encodedData = {};
+    Object.keys(interviewData).forEach(key => {
+        const encodedKey = encodeEmail(key);
+        encodedData[encodedKey] = interviewData[key];
+    });
+
     // Save to Firebase
     const interviewRef = firebase.database().ref('interviews');
-    interviewRef.set(interviewData)
+    interviewRef.set(encodedData)
         .catch((error) => {
             console.error('Error saving to Firebase:', error);
             // Fallback to localStorage
