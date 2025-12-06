@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Excel files (optional - uncomment if you don't want to commit)
+# *.xlsx
+
+# Editor directories
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+extract_members.py
+front end.xlsx
+README.md
+DEPLOYMENT_GUIDE.md
+FIREBASE_SETUP.md
+QUICK_START.md
